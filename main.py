@@ -5,6 +5,10 @@ from celery import Celery
 
 app = Flask(__name__)
 
+# Variables globales
+Phone_number = "0000"
+Message = "Nothing"
+
 #Config Redis with Railway
 REDIS_URL = os.getenv("REDIS_URL")
 redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
@@ -26,9 +30,7 @@ def check_redis():
 def home():
     return 'Hello, World!'
 
-# Variables globales
-Phone_number = "0000"
-Message = "Nothing"
+
 
 @app.route("/webhook/", methods=["POST", "GET"])
 def webhook_whatsapp():
@@ -51,8 +53,9 @@ def process_message(data):
     try:
         Phone_number = data['entry'][0]['changes'][0]['value']['messages'][0]['from']
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
-        redis_client.lpush("message_queue", f"{Phone_number}:{message}")
         print(f"Message recived from {Phone_number}: {Message}")
+        redis_client.lpush("message_queue", f"{Phone_number}:{message}")
+        print("Message stored in Redis successfully.")
 
     except Exception as e:
         print(f"Error while processing the message: {str(e)}")
