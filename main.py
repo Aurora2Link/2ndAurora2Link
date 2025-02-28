@@ -54,7 +54,7 @@ def process_message(data):
         Phone_number = data['entry'][0]['changes'][0]['value']['messages'][0]['from']
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
         print(f"Message recived from {Phone_number}: {Message}")
-        redis_client.lpush("message_queue", f"{Phone_number}:{message}")
+        redis_client.lpush("message_queue", f"{Phone_number}:{Message}")
         print("Message stored in Redis successfully.")
 
     except Exception as e:
