@@ -12,6 +12,16 @@ redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 #Config Celery
 celery = Celery("tasks", broker=REDIS_URL, backend=REDIS_URL)
 
+def check_redis():
+    try:
+        redis_client.ping()
+        print("Redis está conectado")
+        return True
+    except redis.exceptions.ConnectionError:
+        print("Redis no está disponible")
+        return False
+
+
 @app.route('/')
 def home():
     return 'Hello, World!'
@@ -49,8 +59,11 @@ def process_message(data):
 
 @app.route('/messages')
 def get_messages():
-    messages = redis_client.lrange("message_queue", 0,9)
-    return jsonify({"last_messages": messages})
+    if check_redis():
+        messages = redis_client.lrange("message_queue", 0, 9)
+        return jsonify({"last_messages": messages})
+    return jsonify({"error": "Redis no disponible"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
