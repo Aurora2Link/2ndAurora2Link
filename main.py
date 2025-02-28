@@ -2,14 +2,8 @@ from flask import Flask, request, jsonify
 import redis
 import os
 from celery import Celery
-import json
-import logging
 
 app = Flask(__name__)
-
-# Configura el logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Variables globales
 Phone_number = "0000"
@@ -22,22 +16,13 @@ redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 #Config Celery
 celery = Celery("tasks", broker=REDIS_URL, backend=REDIS_URL)
 
-def log_json(message, level="info"):
-    log_message = json.dumps(message)
-    if level == "info":
-        logger.info(log_message)
-    elif level == "warning":
-        logger.warning(log_message)
-    elif level == "error":
-        
-
 def check_redis():
     try:
         redis_client.ping()
-        log_json({"message": "Redis está conectado"})
+        print("Redis está conectado")
         return True
     except redis.exceptions.ConnectionError:
-        log_json({"message": "Redis no está disponible"}, level="error")
+        print("Redis no está disponible")
         return False
 
 
@@ -68,12 +53,12 @@ def process_message(data):
     try:
         Phone_number = data['entry'][0]['changes'][0]['value']['messages'][0]['from']
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
-        log_json({"phone_number": Phone_number, "message": Message})
+        print(f"Message recived from {Phone_number}: {Message}")
         redis_client.lpush("message_queue", f"{Phone_number}:{Message}")
-        log_json({"message": "Message stored in Redis successfully."})
+        print("Message stored in Redis successfully.")
 
     except Exception as e:
-        log_json({"error": f"Error while processing the message: {str(e)}"}, level="error")
+        print(f"Error while processing the message: {str(e)}")
 
 @app.route('/messages')
 def get_messages():
