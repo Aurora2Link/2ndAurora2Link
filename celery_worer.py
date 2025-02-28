@@ -1,4 +1,4 @@
-form app import celery
+form main import celery
 
 if __name__ == "__main__":
-    celery.worker_main(["worker","--loglevel-info"])
+    celery.worker_main(["worker", "--loglevel=info"])
