@@ -77,11 +77,11 @@ def api_db(data):
 
 
 def is_subscribed(phone_number):
-    cache_key = f"sub:{phone_number}"
-    status = redis_client.get(cache_key)
+    cache_key = f"sub:{phone_number}" #REVISAR
+    status = redis_client.get(cache_key) #REVISAR
     
     if status is not None:
-        return status == 1
+        return status == "1"
     
     #If not in cache, ask DB
     response = api_db({"phone":phone_number})
@@ -94,8 +94,8 @@ def is_subscribed(phone_number):
     # Vida útil del token en segundos
     cache_lifespan = max(min(remaining_time * 86400, 604800), 60)
     print(cache_key, cache_lifespan)
-    redis_client.setex(cache_key, cache_lifespan, 1 if status == 1 else 0)
-    return status == 1
+    redis_client.setex(cache_key, cache_lifespan, "1" if status == "1" else "0") #REVISAR
+    return status == "1"
 
 
 @app.route('/')
