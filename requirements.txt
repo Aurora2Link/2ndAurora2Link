@@ -7,3 +7,5 @@ MarkupSafe
 Werkzeug
 redis
 celery
+gevent
+heyoo
