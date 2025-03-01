@@ -4,7 +4,7 @@
         "builder": "NIXPACKS"
     },
     "deploy": {
-        "startCommand": "'celery -A main worker --loglevel=info --autoscale=8,2' 'gunicorn main:app'",
+        "startCommand": "celery -A main worker --loglevel=info --autoscale=8,2 gunicorn main:app",
         "restartPolicyType": "ON_FAILURE",
         "restartPolicyMaxRetries": 10
     }
