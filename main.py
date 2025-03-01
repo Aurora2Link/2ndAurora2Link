@@ -28,10 +28,16 @@ def check_redis():
         return False
 
 
+def clean_mexican_number(phone_number):
+    if phone_number.startswith("521") and len(phone_number) == 13:
+        return "52" + phone_number[3:]
+    return  phone_number
+
+
 def send_message(phone_number, message, url_image=None):
     try:
+        phone_number = clean_mexican_number
         message_wp = WhatsApp(WP_TOKEN, ID_PHONE_NUM)
-
         message_wp.send_message(message,phone_number)
 
         if url_image:
@@ -120,7 +126,7 @@ def process_message(data):
         
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
         print(f"Message recived from {Phone_number}: {Message}")
-        send_message("523223513064","Recibí tu mensaje!")
+        send_message(Phone_number,"Recibí tu mensaje!")
         # redis_client.lpush("message_queue", f"{Phone_number}:{Message}")
         # print("Message stored in Redis successfully.")
 
