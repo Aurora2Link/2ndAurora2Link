@@ -93,10 +93,10 @@ def is_subscribed(phone_number):
     
     # Vida útil del token en segundos
     cache_lifespan = max(min(remaining_time * 86400, 604800), 60)
-    send_message(phone_number, "Bienvenido, prueba de 7 días gratias activada", "https://imgur.com/K8Mj4rM")
+    print(cache_key, cache_lifespan)
     redis_client.setex(cache_key, cache_lifespan, "1" if status == "1" else "0")
-    
-    return status == "1"
+    send_message(phone_number, "Bienvenido, prueba de 7 días gratias activada", "https://imgur.com/K8Mj4rM")
+    return response.get("is_subscribed") == 1
 
 
 @app.route('/')
