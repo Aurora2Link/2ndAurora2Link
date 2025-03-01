@@ -81,22 +81,21 @@ def is_subscribed(phone_number):
     status = redis_client.get(cache_key)
     
     if status is not None:
-        return status == "1"
+        return status == 1
     
     #If not in cache, ask DB
     response = api_db({"phone":phone_number})
 
-    status = response.get("payed", "0")
-    sub_until_date = datetime.strptime(response.get("sub_until", "1970-01-01"), "%Y-%m-%d")
+    status = response.get("is_subscribed", "0")
+    sub_until_date = datetime.strptime(response.get("subscription_until", "1970-01-01"), "%Y-%m-%d")
     today = datetime.today()
     remaining_time = max((sub_until_date - today).days, 0)
     
     # Vida útil del token en segundos
     cache_lifespan = max(min(remaining_time * 86400, 604800), 60)
     print(cache_key, cache_lifespan)
-    redis_client.setex(cache_key, cache_lifespan, "1" if status == "1" else "0")
-    send_message(phone_number, "Bienvenido, prueba de 7 días gratias activada", "https://imgur.com/K8Mj4rM")
-    return response.get("is_subscribed") == 1
+    redis_client.setex(cache_key, cache_lifespan, 1 if status == 1 else 0)
+    return status == 1
 
 
 @app.route('/')
