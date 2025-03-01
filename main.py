@@ -31,12 +31,12 @@ def check_redis():
 def clean_mexican_number(phone_number):
     if phone_number.startswith("521") and len(phone_number) == 13:
         return "52" + phone_number[3:]
-    return  phone_number
+    return phone_number
 
 
 def send_message(phone_number, message, url_image=None):
     try:
-        phone_number = clean_mexican_number
+        phone_number = clean_mexican_number(phone_number)
         message_wp = WhatsApp(WP_TOKEN, ID_PHONE_NUM)
         message_wp.send_message(message,phone_number)
 
