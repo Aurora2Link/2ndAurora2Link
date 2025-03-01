@@ -37,7 +37,7 @@ def send_message(phone_number, message, url_image=None):
         if url_image:
             message_wp.send_image(image=url_image, recipient_id=phone_number)
 
-        print(f"Mensaje enviado correctamente a {telefono}")
+        print(f"Mensaje enviado correctamente a {phone_number}")
         return True
     except Exception as e:
         print(f"Error al enviar mensaje: {str(e)}")
