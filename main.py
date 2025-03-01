@@ -54,7 +54,7 @@ def send_message(phone_number, message, url_image=None):
 
 
 def api_db(data):
-    url = "http://subcheck.railway.internal/api/check_subscription/"
+    url = "http:/subcheck-production.up.railway.app/api/check_subscription/"
     headers = {"Content-Type": "application/json"}
 
     try:
