@@ -3,6 +3,8 @@ import redis
 import os
 from celery import Celery
 from heyoo import WhatsApp
+import requests
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -50,6 +52,30 @@ def send_message(phone_number, message, url_image=None):
         return False
 
 
+
+def api_db(data):
+    url = "http://subcheck.railway.internal/api/check_subscription/"
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        
+        try:
+            json_response = response.json()
+            print("Respuesta de la API-DB", json_response)
+            return json_response
+        except ValueError:
+            print("Error: La API devolvió una respuesta no válida:", response.text)
+            return None
+
+    except requests.exceptions.RequestException as e:
+        print("Error al enviar POST:", e)
+        return None
+
+
+
+
 def is_subscribed(phone_number):
     cache_key = f"sub:{phone_number}"
     status = redis_client.get(cache_key)
@@ -58,24 +84,11 @@ def is_subscribed(phone_number):
         return status == "1"
     
     #If not in cache, ask DB
-    #fake DB API...
-    response = {
-        "status_code": 200,
-        "id": "322123456789",
-        "payed": "1",
-        "sub_until": "2025-03-01"
-        }
+    response = api_db({"phone":phone_number})
 
-    """
-    Not payed response
-        response = {
-        "status_code": 200,
-        "id": "322123456789",
-        "payed": "0",
-        }
-    """
-    if response["status_code"] != 200:
+    if not response or "status_code" not in response or response["status_code"] != 200:
         return False
+
 
     status = response.get("payed", "0")
     sub_until_date = datetime.strptime(response.get("sub_until", "1970-01-01"), "%Y-%m-%d")
@@ -115,18 +128,17 @@ def webhook_whatsapp():
 def process_message(data):
     try:
         Phone_number = data['entry'][0]['changes'][0]['value']['messages'][0]['from']
-        
-        '''
-        if not is_subscribed(Phone_number):
-            # Send message to user: need to pay
-        Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']    
-        # Enviar a LLM
 
-        '''
+        if not is_subscribed(Phone_number):
+            send_message(Phone_number,"No tienes suscripción")
+            return    
         
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
         print(f"Message recived from {Phone_number}: {Message}")
         send_message(Phone_number,"Recibí tu mensaje: " + Message)
+
+        #Send DATA(message) to LLM
+
         # redis_client.lpush("message_queue", f"{Phone_number}:{Message}")
         # print("Message stored in Redis successfully.")
 
