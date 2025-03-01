@@ -120,7 +120,7 @@ def process_message(data):
         
         Message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
         print(f"Message recived from {Phone_number}: {Message}")
-        send_message(phone_number,"Recibí tu mensaje!")
+        send_message(Phone_number,"Recibí tu mensaje!")
         # redis_client.lpush("message_queue", f"{Phone_number}:{Message}")
         # print("Message stored in Redis successfully.")
 
