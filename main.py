@@ -86,10 +86,6 @@ def is_subscribed(phone_number):
     #If not in cache, ask DB
     response = api_db({"phone":phone_number})
 
-    if not response or "status_code" not in response or response["status_code"] != 200:
-        return False
-
-
     status = response.get("payed", "0")
     sub_until_date = datetime.strptime(response.get("sub_until", "1970-01-01"), "%Y-%m-%d")
     today = datetime.today()
@@ -97,7 +93,7 @@ def is_subscribed(phone_number):
     
     # Vida útil del token en segundos
     cache_lifespan = max(min(remaining_time * 86400, 604800), 60)
-
+    send_message(phone_number, "Bienvenido, prueba de 7 días gratias activada", "https://imgur.com/K8Mj4rM")
     redis_client.setex(cache_key, cache_lifespan, "1" if status == "1" else "0")
     
     return status == "1"
