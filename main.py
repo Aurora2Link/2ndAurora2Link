@@ -30,10 +30,12 @@ def check_redis():
         return False
 
 
+
 def clean_mexican_number(phone_number):
     if phone_number.startswith("521") and len(phone_number) == 13:
         return "52" + phone_number[3:]
     return phone_number
+
 
 
 def send_message(phone_number, message, url_image=None):
@@ -75,7 +77,6 @@ def api_db(data):
 
 
 
-
 def is_subscribed(phone_number):
     cache_key = f"sub:{phone_number}" #REVISAR
     status = redis_client.get(cache_key) #REVISAR
@@ -94,7 +95,7 @@ def is_subscribed(phone_number):
     # Vida útil del token en segundos
     cache_lifespan = max(min(remaining_time * 86400, 604800), 60)
     print(cache_key, cache_lifespan)
-    redis_client.setex(cache_key, cache_lifespan, "1" if status == "1" else "0") #REVISAR
+    redis_client.setex(cache_key, cache_lifespan, "1" if status == 1 else "0") #REVISAR
     return status == "1"
 
 
